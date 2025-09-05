@@ -63,6 +63,7 @@ import org.fossify.home.BuildConfig
 import org.fossify.home.R
 import org.fossify.home.databinding.ActivityMainBinding
 import org.fossify.home.databinding.AllAppsFragmentBinding
+import org.fossify.home.databinding.MinusOneFragmentBinding
 import org.fossify.home.databinding.WidgetsFragmentBinding
 import org.fossify.home.dialogs.RenameItemDialog
 import org.fossify.home.extensions.config
@@ -151,6 +152,10 @@ class MainActivity : SimpleActivity(), FlingListener {
             fragment.setupFragment(this)
             fragment.y = mScreenHeight.toFloat()
             fragment.beVisible()
+        }
+
+        MinusOneFragmentBinding.inflate(layoutInflater, binding.minusOneContainer, true).apply {
+            root.setupFragment(this@MainActivity)
         }
 
         handleIntentAction(intent)
@@ -275,6 +280,9 @@ class MainActivity : SimpleActivity(), FlingListener {
             hideFragment(binding.widgetsFragment)
         } else if (binding.homeScreenGrid.resizeFrame.isVisible) {
             binding.homeScreenGrid.root.hideResizeLines()
+        } else if (binding.homeScreenGrid.root.getCurrentPage() == -1) {
+            binding.homeScreenGrid.root.skipToPage(0)
+            updateMinusOneVisibility()
         } else {
             // this is a home launcher app, avoid glitching by pressing Back
             //super.onBackPressed()
@@ -419,6 +427,7 @@ class MainActivity : SimpleActivity(), FlingListener {
 
                     if (!mIgnoreXMoveEvents) {
                         binding.homeScreenGrid.root.finalizeSwipe()
+                        updateMinusOneVisibility()
                     }
                 }
 
@@ -479,6 +488,7 @@ class MainActivity : SimpleActivity(), FlingListener {
 
                 runOnUiThread {
                     binding.homeScreenGrid.root.skipToPage(page)
+                    updateMinusOneVisibility()
                 }
                 // delay showing the shortcut both to let the user see adding it in realtime and hackily avoid concurrent modification exception at HomeScreenGrid
                 Thread.sleep(2000)
@@ -490,6 +500,10 @@ class MainActivity : SimpleActivity(), FlingListener {
                 }
             }
         }
+    }
+
+    private fun updateMinusOneVisibility() {
+        binding.minusOneContainer.isVisible = binding.homeScreenGrid.root.getCurrentPage() == -1
     }
 
     private fun findFirstEmptyCell(): Pair<Int, Rect> {

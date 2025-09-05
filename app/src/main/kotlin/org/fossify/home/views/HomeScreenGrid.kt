@@ -1799,6 +1799,8 @@ class HomeScreenGrid(context: Context, attrs: AttributeSet, defStyle: Int) :
 
     fun getCurrentIconSize(): Int = iconSize
 
+    fun getCurrentPage(): Int = pager.getCurrentPage()
+
 
     fun setSwipeMovement(diffX: Float) {
         if (draggedItem == null) {
@@ -2259,7 +2261,7 @@ private class AnimatedGridPager(
             return
         }
 
-        if (currentPage < getMaxPage() && diffX > 0f || currentPage > 0 && diffX < 0f) {
+        if (currentPage < getMaxPage() && diffX > 0f || currentPage > -1 && diffX < 0f) {
             pageChangeSwipedPercentage = (-diffX / getWidth().toFloat()).coerceIn(-1f, 1f)
             pageChangeStarted()
             redrawGrid()
@@ -2322,7 +2324,7 @@ private class AnimatedGridPager(
     }
 
     fun prevPage(redraw: Boolean = false): Boolean {
-        if (currentPage > 0 && pageChangeEnabled) {
+        if (currentPage > -1 && pageChangeEnabled) {
             lastPage = currentPage
             currentPage--
             handlePageChange(redraw)
