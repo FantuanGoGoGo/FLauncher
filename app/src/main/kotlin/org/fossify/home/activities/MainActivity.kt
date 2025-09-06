@@ -44,6 +44,7 @@ import androidx.core.view.iterator
 import androidx.viewbinding.ViewBinding
 import kotlinx.collections.immutable.toImmutableList
 import org.fossify.commons.extensions.appLaunched
+import org.fossify.commons.extensions.beGone
 import org.fossify.commons.extensions.beVisible
 import org.fossify.commons.extensions.getContrastColor
 import org.fossify.commons.extensions.getPopupMenuTheme
@@ -104,6 +105,7 @@ class MainActivity : SimpleActivity(), FlingListener {
     private var mAllAppsFragmentY = 0
     private var mWidgetsFragmentY = 0
     private var mScreenHeight = 0
+    private var mScreenWidth = 0
     private var mMoveGestureThreshold = 0
     private var mIgnoreUpEvent = false
     private var mIgnoreMoveEvents = false
@@ -140,9 +142,16 @@ class MainActivity : SimpleActivity(), FlingListener {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         mScreenHeight = realScreenSize.y
+        mScreenWidth = realScreenSize.x
         mAllAppsFragmentY = mScreenHeight
         mWidgetsFragmentY = mScreenHeight
         mMoveGestureThreshold = resources.getDimensionPixelSize(R.dimen.move_gesture_threshold)
+
+        (binding.minusOneFragment.root as MyFragment<*>).apply {
+            setupFragment(this@MainActivity)
+            x = -mScreenWidth.toFloat()
+            beVisible()
+        }
 
         arrayOf(
             binding.allAppsFragment.root as MyFragment<*>,
@@ -267,7 +276,9 @@ class MainActivity : SimpleActivity(), FlingListener {
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        if (isAllAppsFragmentExpanded()) {
+        if (isMinusOneFragmentExpanded()) {
+            hideMinusOneFragment()
+        } else if (isAllAppsFragmentExpanded()) {
             if (!binding.allAppsFragment.root.onBackPressed()) {
                 hideFragment(binding.allAppsFragment)
             }
@@ -394,6 +405,7 @@ class MainActivity : SimpleActivity(), FlingListener {
 
             MotionEvent.ACTION_CANCEL,
             MotionEvent.ACTION_UP -> {
+                val diffXUp = mTouchDownX - event.x
                 mTouchDownX = -1
                 mTouchDownY = -1
                 mIgnoreMoveEvents = false
@@ -418,7 +430,11 @@ class MainActivity : SimpleActivity(), FlingListener {
                     }
 
                     if (!mIgnoreXMoveEvents) {
-                        binding.homeScreenGrid.root.finalizeSwipe()
+                        if (!isMinusOneFragmentExpanded() && !isAllAppsFragmentExpanded() && !isWidgetsFragmentExpanded() && binding.homeScreenGrid.root.getCurrentPage() == 0 && diffXUp < -mMoveGestureThreshold) {
+                            showMinusOneFragment()
+                        } else {
+                            binding.homeScreenGrid.root.finalizeSwipe()
+                        }
                     }
                 }
 
@@ -562,6 +578,8 @@ class MainActivity : SimpleActivity(), FlingListener {
     private fun isWidgetsFragmentExpanded() =
         binding.widgetsFragment.root.y != mScreenHeight.toFloat()
 
+    private fun isMinusOneFragmentExpanded() = binding.minusOneFragment.root.x == 0f
+
     fun startHandlingTouches(touchDownY: Int) {
         mLongPressedIcon = null
         mTouchDownY = touchDownY
@@ -621,6 +639,31 @@ class MainActivity : SimpleActivity(), FlingListener {
                 fragment.root.touchDownY = -1
             }
         }, animationDuration)
+    }
+
+    fun showMinusOneFragment() {
+        if (isMinusOneFragmentExpanded()) {
+            return
+        }
+        binding.homeScreenGrid.root.beGone()
+        binding.minusOneFragment.root.beVisible()
+        ObjectAnimator.ofFloat(binding.minusOneFragment.root, "x", 0f).apply {
+            duration = ANIMATION_DURATION
+            interpolator = DecelerateInterpolator()
+            start()
+        }
+    }
+
+    fun hideMinusOneFragment() {
+        if (!isMinusOneFragmentExpanded()) {
+            return
+        }
+        binding.homeScreenGrid.root.beVisible()
+        ObjectAnimator.ofFloat(binding.minusOneFragment.root, "x", -mScreenWidth.toFloat()).apply {
+            duration = ANIMATION_DURATION
+            interpolator = DecelerateInterpolator()
+            start()
+        }
     }
 
     fun homeScreenLongPressed(eventX: Float, eventY: Float) {
