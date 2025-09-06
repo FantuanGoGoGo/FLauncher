@@ -1797,6 +1797,8 @@ class HomeScreenGrid(context: Context, attrs: AttributeSet, defStyle: Int) :
         return pager.skipToPage(targetPage)
     }
 
+    fun getCurrentPage(): Int = pager.getCurrentPage()
+
     fun getCurrentIconSize(): Int = iconSize
 
 

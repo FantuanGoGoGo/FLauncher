@@ -430,7 +430,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                     }
 
                     if (!mIgnoreXMoveEvents) {
-                        if (!isMinusOneFragmentExpanded() && !isAllAppsFragmentExpanded() && !isWidgetsFragmentExpanded() && binding.homeScreenGrid.root.getCurrentPage() == 0 && diffXUp < -mMoveGestureThreshold) {
+                        if (!isMinusOneFragmentExpanded() && !isAllAppsFragmentExpanded() && !isWidgetsFragmentExpanded() && binding.homeScreenGrid.root.getCurrentPage() == 0 && diffXUp > mMoveGestureThreshold) {
                             showMinusOneFragment()
                         } else {
                             binding.homeScreenGrid.root.finalizeSwipe()
