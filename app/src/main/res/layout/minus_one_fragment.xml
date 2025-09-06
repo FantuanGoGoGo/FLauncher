@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.fossify.home.fragments.MinusOneFragment xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/minus_one_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/minus_one_placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/minus_one_placeholder" />
+
+</org.fossify.home.fragments.MinusOneFragment>
