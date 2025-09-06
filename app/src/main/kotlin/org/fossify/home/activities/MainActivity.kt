@@ -396,7 +396,24 @@ class MainActivity : SimpleActivity(), FlingListener {
                         }
                     } else if (abs(diffX) > abs(diffY) && !mIgnoreXMoveEvents) {
                         mIgnoreYMoveEvents = true
-                        binding.homeScreenGrid.root.setSwipeMovement(diffX)
+
+                        if (isMinusOneFragmentExpanded()) {
+                            if (diffX < 0f) {
+                                binding.homeScreenGrid.root.beVisible()
+                                val newX = diffX.coerceIn(-mScreenWidth.toFloat(), 0f)
+                                binding.minusOneFragment.root.x = newX
+                            }
+                        } else if (
+                            !isAllAppsFragmentExpanded() &&
+                            !isWidgetsFragmentExpanded() &&
+                            binding.homeScreenGrid.root.getCurrentPage() == 0 &&
+                            diffX < 0f
+                        ) {
+                            val newX = (-mScreenWidth - diffX).coerceIn(-mScreenWidth.toFloat(), 0f)
+                            binding.minusOneFragment.root.x = newX
+                        } else {
+                            binding.homeScreenGrid.root.setSwipeMovement(diffX)
+                        }
                     }
                 }
 
@@ -430,8 +447,32 @@ class MainActivity : SimpleActivity(), FlingListener {
                     }
 
                     if (!mIgnoreXMoveEvents) {
-                        if (!isMinusOneFragmentExpanded() && !isAllAppsFragmentExpanded() && !isWidgetsFragmentExpanded() && binding.homeScreenGrid.root.getCurrentPage() == 0 && diffXUp > mMoveGestureThreshold) {
-                            showMinusOneFragment()
+                        if (isMinusOneFragmentExpanded()) {
+                            if (diffXUp < -mScreenWidth / 2f) {
+                                hideMinusOneFragment()
+                            } else {
+                                showMinusOneFragment()
+                            }
+                        } else if (
+                            !isAllAppsFragmentExpanded() &&
+                            !isWidgetsFragmentExpanded() &&
+                            binding.homeScreenGrid.root.getCurrentPage() == 0 &&
+                            diffXUp < 0f
+                        ) {
+                            if (-diffXUp > mScreenWidth / 2f) {
+                                showMinusOneFragment()
+                            } else {
+                                ObjectAnimator.ofFloat(
+                                    binding.minusOneFragment.root,
+                                    "x",
+                                    -mScreenWidth.toFloat()
+                                ).apply {
+                                    duration = ANIMATION_DURATION
+                                    interpolator = DecelerateInterpolator()
+                                    start()
+                                }
+                                binding.homeScreenGrid.root.finalizeSwipe()
+                            }
                         } else {
                             binding.homeScreenGrid.root.finalizeSwipe()
                         }
