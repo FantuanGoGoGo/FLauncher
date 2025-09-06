@@ -149,7 +149,7 @@ class MainActivity : SimpleActivity(), FlingListener {
 
         (binding.minusOneFragment.root as MyFragment<*>).apply {
             setupFragment(this@MainActivity)
-            x = -mScreenWidth.toFloat()
+            x = mScreenWidth.toFloat()
             beVisible()
         }
 
@@ -400,16 +400,16 @@ class MainActivity : SimpleActivity(), FlingListener {
                         if (isMinusOneFragmentExpanded()) {
                             if (diffX < 0f) {
                                 binding.homeScreenGrid.root.beVisible()
-                                val newX = diffX.coerceIn(-mScreenWidth.toFloat(), 0f)
+                                val newX = (-diffX).coerceIn(0f, mScreenWidth.toFloat())
                                 binding.minusOneFragment.root.x = newX
                             }
                         } else if (
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            diffX < 0f
+                            diffX > 0f
                         ) {
-                            val newX = (-mScreenWidth - diffX).coerceIn(-mScreenWidth.toFloat(), 0f)
+                            val newX = (mScreenWidth - diffX).coerceIn(0f, mScreenWidth.toFloat())
                             binding.minusOneFragment.root.x = newX
                         } else {
                             binding.homeScreenGrid.root.setSwipeMovement(diffX)
@@ -456,16 +456,16 @@ class MainActivity : SimpleActivity(), FlingListener {
                         } else if (
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
-                            binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            diffXUp < 0f
+                            binding.homeScreenGrid.root.getCurrentPage() == 0
                         ) {
-                            if (-diffXUp > mScreenWidth / 2f) {
+                            val currentX = binding.minusOneFragment.root.x
+                            if (currentX < mScreenWidth / 2f) {
                                 showMinusOneFragment()
                             } else {
                                 ObjectAnimator.ofFloat(
                                     binding.minusOneFragment.root,
                                     "x",
-                                    -mScreenWidth.toFloat()
+                                    mScreenWidth.toFloat()
                                 ).apply {
                                     duration = ANIMATION_DURATION
                                     interpolator = DecelerateInterpolator()
@@ -473,9 +473,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                                 }
                                 binding.homeScreenGrid.root.finalizeSwipe()
                             }
-                        }
-
-                        else {
+                        } else {
                             binding.homeScreenGrid.root.finalizeSwipe()
                         }
                     }
@@ -702,7 +700,7 @@ class MainActivity : SimpleActivity(), FlingListener {
             return
         }
         binding.homeScreenGrid.root.beVisible()
-        ObjectAnimator.ofFloat(binding.minusOneFragment.root, "x", -mScreenWidth.toFloat()).apply {
+        ObjectAnimator.ofFloat(binding.minusOneFragment.root, "x", mScreenWidth.toFloat()).apply {
             duration = ANIMATION_DURATION
             interpolator = DecelerateInterpolator()
             start()
