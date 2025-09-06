@@ -399,9 +399,8 @@ class MainActivity : SimpleActivity(), FlingListener {
 
                         if (isMinusOneFragmentExpanded()) {
                             if (diffX < 0f) {
-                                binding.homeScreenGrid.root.beVisible()
-                                val newX = (-diffX).coerceIn(0f, mScreenWidth.toFloat())
-                                binding.minusOneFragment.root.x = newX
+                                hideMinusOneFragment()
+                                mIgnoreXMoveEvents = true
                             }
                         } else if (
                             !isAllAppsFragmentExpanded() &&
@@ -409,8 +408,8 @@ class MainActivity : SimpleActivity(), FlingListener {
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
                             diffX > 0f
                         ) {
-                            val newX = (mScreenWidth - diffX).coerceIn(0f, mScreenWidth.toFloat())
-                            binding.minusOneFragment.root.x = newX
+                            showMinusOneFragment()
+                            mIgnoreXMoveEvents = true
                         } else {
                             binding.homeScreenGrid.root.setSwipeMovement(diffX)
                         }
@@ -422,7 +421,6 @@ class MainActivity : SimpleActivity(), FlingListener {
 
             MotionEvent.ACTION_CANCEL,
             MotionEvent.ACTION_UP -> {
-                val diffXUp = mTouchDownX - event.x
                 mTouchDownX = -1
                 mTouchDownY = -1
                 mIgnoreMoveEvents = false
@@ -447,35 +445,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                     }
 
                     if (!mIgnoreXMoveEvents) {
-                        if (isMinusOneFragmentExpanded()) {
-                            if (diffXUp < -mScreenWidth / 2f) {
-                                hideMinusOneFragment()
-                            } else {
-                                showMinusOneFragment()
-                            }
-                        } else if (
-                            !isAllAppsFragmentExpanded() &&
-                            !isWidgetsFragmentExpanded() &&
-                            binding.homeScreenGrid.root.getCurrentPage() == 0
-                        ) {
-                            val currentX = binding.minusOneFragment.root.x
-                            if (currentX < mScreenWidth / 2f) {
-                                showMinusOneFragment()
-                            } else {
-                                ObjectAnimator.ofFloat(
-                                    binding.minusOneFragment.root,
-                                    "x",
-                                    mScreenWidth.toFloat()
-                                ).apply {
-                                    duration = ANIMATION_DURATION
-                                    interpolator = DecelerateInterpolator()
-                                    start()
-                                }
-                                binding.homeScreenGrid.root.finalizeSwipe()
-                            }
-                        } else {
-                            binding.homeScreenGrid.root.finalizeSwipe()
-                        }
+                        binding.homeScreenGrid.root.finalizeSwipe()
                     }
                 }
 
