@@ -398,7 +398,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                         mIgnoreYMoveEvents = true
 
                         if (isMinusOneFragmentExpanded()) {
-                            if (diffX > 0f) {
+                            if (diffX < 0f) {
                                 hideMinusOneFragment()
                                 mIgnoreXMoveEvents = true
                             }
@@ -406,7 +406,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            diffX < 0f
+                            diffX > 0f
                         ) {
                             showMinusOneFragment()
                             mIgnoreXMoveEvents = true
