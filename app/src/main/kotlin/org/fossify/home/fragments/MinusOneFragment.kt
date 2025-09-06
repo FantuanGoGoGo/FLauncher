@@ -25,7 +25,7 @@ class MinusOneFragment(
                 MotionEvent.ACTION_DOWN -> touchDownX = event.x.toInt()
                 MotionEvent.ACTION_UP -> {
                     val diffX = event.x - touchDownX
-                    if (diffX < -moveGestureThreshold) {
+                    if (diffX > moveGestureThreshold) {
                         activity.hideMinusOneFragment()
                     }
                 }
