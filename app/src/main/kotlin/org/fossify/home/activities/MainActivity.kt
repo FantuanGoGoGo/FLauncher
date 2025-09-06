@@ -149,7 +149,7 @@ class MainActivity : SimpleActivity(), FlingListener {
 
         (binding.minusOneFragment.root as MyFragment<*>).apply {
             setupFragment(this@MainActivity)
-            x = mScreenWidth.toFloat()
+            x = -mScreenWidth.toFloat()
             beVisible()
         }
 
@@ -398,7 +398,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                         mIgnoreYMoveEvents = true
 
                         if (isMinusOneFragmentExpanded()) {
-                            if (diffX < 0f) {
+                            if (diffX > 0f) {
                                 hideMinusOneFragment()
                                 mIgnoreXMoveEvents = true
                             }
@@ -406,7 +406,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            diffX > 0f
+                            diffX < 0f
                         ) {
                             showMinusOneFragment()
                             mIgnoreXMoveEvents = true
@@ -670,7 +670,7 @@ class MainActivity : SimpleActivity(), FlingListener {
             return
         }
         binding.homeScreenGrid.root.beVisible()
-        ObjectAnimator.ofFloat(binding.minusOneFragment.root, "x", mScreenWidth.toFloat()).apply {
+        ObjectAnimator.ofFloat(binding.minusOneFragment.root, "x", -mScreenWidth.toFloat()).apply {
             duration = ANIMATION_DURATION
             interpolator = DecelerateInterpolator()
             start()
