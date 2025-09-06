@@ -379,7 +379,7 @@ class MainActivity : SimpleActivity(), FlingListener {
 
                 if (hasFingerMoved && !mIgnoreMoveEvents) {
                     val diffY = mTouchDownY - event.y
-                    val diffX = mTouchDownX - event.x
+                    val diffX = event.x - mTouchDownX
 
                     if (abs(diffY) > abs(diffX) && !mIgnoreYMoveEvents) {
                         mIgnoreXMoveEvents = true
@@ -398,7 +398,7 @@ class MainActivity : SimpleActivity(), FlingListener {
                         mIgnoreYMoveEvents = true
 
                         if (isMinusOneFragmentExpanded()) {
-                            if (diffX < 0f) {
+                            if (diffX > 0f) {
                                 hideMinusOneFragment()
                                 mIgnoreXMoveEvents = true
                             }
@@ -406,12 +406,12 @@ class MainActivity : SimpleActivity(), FlingListener {
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            diffX > 0f
+                            diffX < 0f
                         ) {
                             showMinusOneFragment()
                             mIgnoreXMoveEvents = true
                         } else {
-                            binding.homeScreenGrid.root.setSwipeMovement(diffX)
+                            binding.homeScreenGrid.root.setSwipeMovement(-diffX)
                         }
                     }
                 }
