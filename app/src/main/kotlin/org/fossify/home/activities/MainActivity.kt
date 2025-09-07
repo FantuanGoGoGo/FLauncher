@@ -114,6 +114,9 @@ class MainActivity : SimpleActivity(), FlingListener {
     private var mLongPressedIcon: HomeScreenGridItem? = null
     private var mOpenPopupMenu: PopupMenu? = null
     private var mLastTouchCoords = Pair(-1f, -1f)
+    private var mDraggingMinusOne = false
+    private var mMinusOneLastRawX = 0f
+    private var mMinusOneLastMoveDirection = 0f
     private var mActionOnCanBindWidget: ((granted: Boolean) -> Unit)? = null
     private var mActionOnWidgetConfiguredWidget: ((granted: Boolean) -> Unit)? = null
     private var mActionOnAddShortcut:
@@ -354,6 +357,9 @@ class MainActivity : SimpleActivity(), FlingListener {
                 mAllAppsFragmentY = binding.allAppsFragment.root.y.toInt()
                 mWidgetsFragmentY = binding.widgetsFragment.root.y.toInt()
                 mIgnoreUpEvent = false
+                mDraggingMinusOne = false
+                mMinusOneLastRawX = event.rawX
+                mMinusOneLastMoveDirection = 0f
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -397,18 +403,18 @@ class MainActivity : SimpleActivity(), FlingListener {
                     } else if (abs(diffX) > abs(diffY) && !mIgnoreXMoveEvents) {
                         mIgnoreYMoveEvents = true
 
-                        if (isMinusOneFragmentExpanded()) {
-                            if (diffX < 0f) {
-                                hideMinusOneFragment()
-                                mIgnoreXMoveEvents = true
-                            }
-                        } else if (
+                        if (
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            diffX > 0f
+                            (diffX > 0f || binding.minusOneFragment.root.x > -mScreenWidth)
                         ) {
-                            showMinusOneFragment()
+                            val adjustedDiffX = max(0f, diffX.toFloat())
+                            val newX = (-mScreenWidth + adjustedDiffX).coerceIn(-mScreenWidth.toFloat(), 0f)
+                            mMinusOneLastMoveDirection = event.rawX - mMinusOneLastRawX
+                            mMinusOneLastRawX = event.rawX
+                            binding.minusOneFragment.root.x = newX
+                            mDraggingMinusOne = true
                             mIgnoreXMoveEvents = true
                         } else {
                             binding.homeScreenGrid.root.setSwipeMovement(-diffX)
@@ -428,6 +434,23 @@ class MainActivity : SimpleActivity(), FlingListener {
                 mLastTouchCoords = Pair(-1f, -1f)
                 resetFragmentTouches()
                 binding.homeScreenGrid.root.itemDraggingStopped()
+
+                if (mDraggingMinusOne) {
+                    val shouldShow = when {
+                        mMinusOneLastMoveDirection > mMoveGestureThreshold -> true
+                        mMinusOneLastMoveDirection < -mMoveGestureThreshold -> false
+                        else -> binding.minusOneFragment.root.x > -mScreenWidth / 2f
+                    }
+
+                    if (shouldShow) {
+                        showMinusOneFragment()
+                    } else {
+                        hideMinusOneFragment()
+                    }
+
+                    mDraggingMinusOne = false
+                    mIgnoreXMoveEvents = true
+                }
 
                 if (!mIgnoreUpEvent) {
                     if (!mIgnoreYMoveEvents) {
@@ -666,7 +689,7 @@ class MainActivity : SimpleActivity(), FlingListener {
     }
 
     fun hideMinusOneFragment() {
-        if (!isMinusOneFragmentExpanded()) {
+        if (binding.minusOneFragment.root.x == -mScreenWidth.toFloat()) {
             return
         }
         binding.homeScreenGrid.root.beVisible()
