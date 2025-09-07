@@ -407,11 +407,11 @@ class MainActivity : SimpleActivity(), FlingListener {
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            (diffX > 0f || binding.minusOneFragment.root.x > -mScreenWidth)
+                            (diffX < 0f || binding.minusOneFragment.root.x > -mScreenWidth)
                         ) {
-                            val adjustedDiffX = max(0f, diffX.toFloat())
-                            val newX = (-mScreenWidth + adjustedDiffX).coerceIn(-mScreenWidth.toFloat(), 0f)
-                            mMinusOneLastMoveDirection = event.rawX - mMinusOneLastRawX
+                            val dx = event.rawX - mMinusOneLastRawX
+                            val newX = (binding.minusOneFragment.root.x - dx).coerceIn(-mScreenWidth.toFloat(), 0f)
+                            mMinusOneLastMoveDirection = dx
                             mMinusOneLastRawX = event.rawX
                             binding.minusOneFragment.root.x = newX
                             mDraggingMinusOne = true
