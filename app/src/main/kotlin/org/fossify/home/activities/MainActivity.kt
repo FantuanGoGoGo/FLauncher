@@ -400,7 +400,6 @@ class MainActivity : SimpleActivity(), FlingListener {
                         if (isMinusOneFragmentExpanded()) {
                             if (diffX < 0f) {
                                 hideMinusOneFragment()
-                                mIgnoreXMoveEvents = true
                             }
                         } else if (
                             !isAllAppsFragmentExpanded() &&
@@ -409,7 +408,6 @@ class MainActivity : SimpleActivity(), FlingListener {
                             diffX > 0f
                         ) {
                             showMinusOneFragment()
-                            mIgnoreXMoveEvents = true
                         } else {
                             binding.homeScreenGrid.root.setSwipeMovement(-diffX)
                         }
