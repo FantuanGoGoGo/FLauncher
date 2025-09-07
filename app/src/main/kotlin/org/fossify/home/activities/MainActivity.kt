@@ -400,14 +400,14 @@ class MainActivity : SimpleActivity(), FlingListener {
                                 a = max(0f, newY), b = mScreenHeight.toFloat()
                             )
                         }
-                    } else if (abs(diffX) > abs(diffY) && !mIgnoreXMoveEvents) {
+                    } else if ((abs(diffX) > abs(diffY) && !mIgnoreXMoveEvents) || mDraggingMinusOne) {
                         mIgnoreYMoveEvents = true
 
                         if (
                             !isAllAppsFragmentExpanded() &&
                             !isWidgetsFragmentExpanded() &&
                             binding.homeScreenGrid.root.getCurrentPage() == 0 &&
-                            (diffX > 0f || binding.minusOneFragment.root.x > -mScreenWidth)
+                            (diffX > 0f || binding.minusOneFragment.root.x > -mScreenWidth || mDraggingMinusOne)
                         ) {
                             val adjustedDiffX = max(0f, diffX.toFloat())
                             val newX = (-mScreenWidth + adjustedDiffX).coerceIn(-mScreenWidth.toFloat(), 0f)
